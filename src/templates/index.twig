@@ -1,0 +1,14 @@
+{% extends "_layouts/cp.twig" %}
+{% import '_includes/forms.twig' as forms %}
+{% set title = "Build Trigger"|t('build-trigger') %}
+
+{% block content %}
+    <form method="POST">
+        {{ csrfInput() }}
+        {{ actionInput('build-trigger/default/trigger-build') }}
+        {{ redirectInput('build-trigger') }}
+        <button type="submit" class="btn submit" data-loading-text="{{ 'Triggering build...'|t('build-trigger') }}">
+            {{ 'Trigger Build'|t('build-trigger') }}
+        </button>
+    </form>
+{% endblock %}

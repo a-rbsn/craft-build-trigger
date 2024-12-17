@@ -1,0 +1,14 @@
+{# @var plugin \arbsn\craftbuildtrigger\Plugin #}
+{# @var settings \arbsn\craftbuildtrigger\models\Settings #}
+
+{% import '_includes/forms.twig' as forms %}
+
+<h2>Build Trigger Settings</h2>
+
+{{ forms.textField({
+    label: "Build Hook URL"|t('app'),
+    instructions: "Enter the URL to trigger the build process."|t('app'),
+    name: "buildHookUrl",
+    value: settings.buildHookUrl,
+    required: true
+}) }}
