@@ -13,7 +13,7 @@
         instructions: "Build hook URL for #{site.handle}"|t('build-trigger'),
         id: "buildHookUrls-#{site.uid}",
         name: "buildHookUrls[#{site.uid}]",
-        value: settings.getBuildHookUrl(site.uid),
+        value: settings.getHookUrl(site),
         suggestEnvVars: true,
         placeholder: 'https://api.netlify.com/build_hooks/…',
     }) }}

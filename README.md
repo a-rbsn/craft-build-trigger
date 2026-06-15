@@ -12,19 +12,21 @@ This plugin requires Craft CMS 5.5.0 or later, and PHP 8.2 or later.
 
 Go to **Settings → Plugins → Build Trigger** and enter a build hook URL for each site. Leave a site blank to disable its build trigger.
 
+Any service that exposes a build/deploy webhook works (Netlify, Vercel, GitHub Actions, GitLab, Cloudflare Pages, …) — the plugin simply sends a `POST` to the configured URL.
+
 Environment variables and aliases are supported, so you can keep the actual URLs out of project config:
 
 ```
 # .env
-NETLIFY_BUILD_HOOK_NL="https://api.netlify.com/build_hooks/xxxxxxxx"
-NETLIFY_BUILD_HOOK_EN="https://api.netlify.com/build_hooks/yyyyyyyy"
+BUILD_HOOK_MAIN="https://api.netlify.com/build_hooks/xxxxxxxx"
+BUILD_HOOK_SHOP="https://api.vercel.com/v1/integrations/deploy/prj_xxxxxxxx/yyyyyyyy"
 ```
 
-Then enter `$NETLIFY_BUILD_HOOK_NL` (etc.) as the hook URL for the corresponding site.
+Then enter `$BUILD_HOOK_MAIN` (etc.) as the hook URL for the corresponding site.
 
 ## Triggering a build
 
-Open the **Build Trigger** section in the control panel and press the button for the site you want to rebuild. Only sites with a configured hook are shown.
+Open the **Build Trigger** section in the control panel, pick a site from the dropdown and press **Trigger build**. Only sites with a configured hook are listed.
 
 ## Installation
 

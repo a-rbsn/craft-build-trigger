@@ -5,7 +5,7 @@
 {% set settings = craft.app.plugins.getPlugin('build-trigger').getSettings() %}
 
 {% block content %}
-    {% set sitesWithHook = craft.app.sites.allSites|filter(site => settings.getBuildHookUrl(site.uid) is not empty) %}
+    {% set sitesWithHook = craft.app.sites.allSites|filter(site => settings.getHookUrl(site) is not empty) %}
 
     {% if sitesWithHook is empty %}
         <p>

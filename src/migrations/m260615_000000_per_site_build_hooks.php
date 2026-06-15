@@ -6,23 +6,20 @@ use Craft;
 use craft\db\Migration;
 
 /**
- * Migrates the single `buildHookUrl` setting to the per-site `buildHookUrls`
- * map, assigning the existing URL to the primary site so no configuration
- * is lost on upgrade.
+ * Moves the single `buildHookUrl` setting onto the primary site in the new
+ * per-site `buildHookUrls` map, so no configuration is lost on upgrade.
  */
 class m260615_000000_per_site_build_hooks extends Migration
 {
     public function safeUp(): bool
     {
-        $projectConfig = Craft::$app->projectConfig;
         $key = 'plugins.build-trigger.settings';
+        $projectConfig = Craft::$app->projectConfig;
         $settings = $projectConfig->get($key) ?? [];
 
-        $oldUrl = $settings['buildHookUrl'] ?? null;
-
-        if (!empty($oldUrl) && empty($settings['buildHookUrls'])) {
-            $primarySite = Craft::$app->sites->getPrimarySite();
-            $settings['buildHookUrls'] = [$primarySite->uid => $oldUrl];
+        if (!empty($settings['buildHookUrl']) && empty($settings['buildHookUrls'])) {
+            $uid = Craft::$app->sites->getPrimarySite()->uid;
+            $settings['buildHookUrls'] = [$uid => $settings['buildHookUrl']];
         }
 
         unset($settings['buildHookUrl']);

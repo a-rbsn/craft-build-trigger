@@ -11,53 +11,34 @@ use yii\web\Response;
 
 class DefaultController extends Controller
 {
-    protected array|int|bool $allowAnonymous = false;
+    protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_LIVE;
 
-    /**
-     * Triggers the build hook configured for the requested site.
-     */
     public function actionTriggerBuild(): Response
     {
         $this->requirePostRequest();
 
-        $siteId = $this->request->getRequiredBodyParam('siteId');
-        $site = Craft::$app->sites->getSiteById((int)$siteId);
+        $site = Craft::$app->sites->getSiteById((int)$this->request->getRequiredBodyParam('siteId'))
+            ?? throw new BadRequestHttpException('Invalid site.');
 
-        if (!$site) {
-            throw new BadRequestHttpException('Invalid site.');
-        }
+        $session = Craft::$app->session;
+        $hookUrl = Plugin::getInstance()->getSettings()->getParsedHookUrl($site);
 
-        $settings = Plugin::getInstance()->getSettings();
-        $buildHookUrl = $settings->getParsedBuildHookUrl($site);
-
-        if (empty($buildHookUrl)) {
-            Craft::$app->session->setError(Craft::t('build-trigger', 'No build hook URL is set for {site}.', [
-                'site' => $site->name,
-            ]));
-
+        if (!$hookUrl) {
+            $session->setError(Craft::t('build-trigger', 'No build hook URL is set for {site}.', ['site' => $site->name]));
             return $this->redirectToPostedUrl();
         }
 
         try {
-            $response = Craft::createGuzzleClient()->post($buildHookUrl);
-            $statusCode = $response->getStatusCode();
+            $status = Craft::createGuzzleClient()->post($hookUrl, ['http_errors' => false])->getStatusCode();
 
-            if ($statusCode >= 200 && $statusCode < 300) {
-                Craft::$app->session->setNotice(Craft::t('build-trigger', 'Build triggered for {site}.', [
-                    'site' => $site->name,
-                ]));
+            if ($status >= 200 && $status < 300) {
+                $session->setNotice(Craft::t('build-trigger', 'Build triggered for {site}.', ['site' => $site->name]));
             } else {
-                Craft::$app->session->setError(Craft::t('build-trigger', 'Failed to trigger build for {site} (HTTP {code}).', [
-                    'site' => $site->name,
-                    'code' => $statusCode,
-                ]));
+                $session->setError(Craft::t('build-trigger', 'Build hook for {site} returned HTTP {status}.', ['site' => $site->name, 'status' => $status]));
             }
         } catch (GuzzleException $e) {
             Craft::error($e->getMessage(), __METHOD__);
-            Craft::$app->session->setError(Craft::t('build-trigger', 'Failed to trigger build for {site}: {error}', [
-                'site' => $site->name,
-                'error' => $e->getMessage(),
-            ]));
+            $session->setError(Craft::t('build-trigger', 'Could not reach the build hook for {site}.', ['site' => $site->name]));
         }
 
         return $this->redirectToPostedUrl();
