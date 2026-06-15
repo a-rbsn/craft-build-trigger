@@ -2,8 +2,8 @@
 
 namespace arbsn\craftbuildtrigger;
 
-use Craft;
 use arbsn\craftbuildtrigger\models\Settings;
+use Craft;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 
@@ -18,7 +18,7 @@ use craft\base\Plugin as BasePlugin;
  */
 class Plugin extends BasePlugin
 {
-    public string $schemaVersion = '1.0.0';
+    public string $schemaVersion = '1.1.0';
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
 
@@ -38,10 +38,7 @@ class Plugin extends BasePlugin
         $this->attachEventHandlers();
 
         Craft::$app->onInit(function() {
-            
         });
-
-        
     }
 
     protected function createSettingsModel(): ?Model
