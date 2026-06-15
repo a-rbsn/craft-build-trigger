@@ -13,18 +13,21 @@
             <a href="{{ url('settings/plugins/build-trigger') }}">{{ "Configure build hooks"|t('build-trigger') }}</a>
         </p>
     {% else %}
-        <div class="buttons">
-            {% for site in sitesWithHook %}
-                <form method="POST" style="display:inline-block">
-                    {{ csrfInput() }}
-                    {{ actionInput('build-trigger/default/trigger-build') }}
-                    {{ redirectInput('build-trigger') }}
-                    {{ hiddenInput('siteId', site.id) }}
-                    <button type="submit" class="btn submit" data-loading-text="{{ 'Triggering build…'|t('build-trigger') }}">
-                        {{ 'Trigger build: {site}'|t('build-trigger', { site: site.name }) }}
-                    </button>
-                </form>
-            {% endfor %}
-        </div>
+        <form method="POST">
+            {{ csrfInput() }}
+            {{ actionInput('build-trigger/default/trigger-build') }}
+            {{ redirectInput('build-trigger') }}
+
+            {{ forms.selectField({
+                label: "Site"|t('build-trigger'),
+                instructions: "Choose which site to rebuild."|t('build-trigger'),
+                name: 'siteId',
+                options: sitesWithHook|map(site => { label: site.name, value: site.id }),
+            }) }}
+
+            <button type="submit" class="btn submit" data-loading-text="{{ 'Triggering build…'|t('build-trigger') }}">
+                {{ 'Trigger build'|t('build-trigger') }}
+            </button>
+        </form>
     {% endif %}
 {% endblock %}
