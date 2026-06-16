@@ -11,10 +11,12 @@ use yii\web\Response;
 
 class DefaultController extends Controller
 {
-    protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_LIVE;
+    protected array|int|bool $allowAnonymous = [];
 
     public function actionTriggerBuild(): Response
     {
+        $this->requireCpRequest();
+        $this->requireLogin();
         $this->requirePostRequest();
 
         $site = Craft::$app->sites->getSiteById((int)$this->request->getRequiredBodyParam('siteId'))
@@ -25,6 +27,11 @@ class DefaultController extends Controller
 
         if (!$hookUrl) {
             $session->setError(Craft::t('build-trigger', 'No build hook URL is set for {site}.', ['site' => $site->name]));
+            return $this->redirectToPostedUrl();
+        }
+
+        if (!preg_match('#^https?://#i', $hookUrl)) {
+            $session->setError(Craft::t('build-trigger', 'The build hook URL for {site} must be an absolute http or https URL.', ['site' => $site->name]));
             return $this->redirectToPostedUrl();
         }
 

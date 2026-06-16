@@ -10,7 +10,7 @@
 {% for site in craft.app.sites.allSites %}
     {{ forms.autosuggestField({
         label: site.name,
-        instructions: "Build hook URL for #{site.handle}"|t('build-trigger'),
+        instructions: "Build hook URL for {handle}"|t('build-trigger', { handle: site.handle }),
         id: "buildHookUrls-#{site.uid}",
         name: "buildHookUrls[#{site.uid}]",
         value: settings.getHookUrl(site),
