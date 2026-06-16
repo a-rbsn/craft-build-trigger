@@ -3,12 +3,18 @@
 
 {% import '_includes/forms.twig' as forms %}
 
-<h2>Build Trigger Settings</h2>
+<h2>{{ "Build Trigger Settings"|t('build-trigger') }}</h2>
 
-{{ forms.textField({
-    label: "Build Hook URL"|t('app'),
-    instructions: "Enter the URL to trigger the build process."|t('app'),
-    name: "buildHookUrl",
-    value: settings.buildHookUrl,
-    required: true
-}) }}
+<p>{{ "Configure a build hook URL per site. Leave a site blank to disable its build trigger. Environment variables are supported (e.g. {var})."|t('build-trigger', { var: '$NETLIFY_BUILD_HOOK' }) }}</p>
+
+{% for site in craft.app.sites.allSites %}
+    {{ forms.autosuggestField({
+        label: site.name,
+        instructions: "Build hook URL for #{site.handle}"|t('build-trigger'),
+        id: "buildHookUrls-#{site.uid}",
+        name: "buildHookUrls[#{site.uid}]",
+        value: settings.getHookUrl(site),
+        suggestEnvVars: true,
+        placeholder: 'https://api.netlify.com/build_hooks/…',
+    }) }}
+{% endfor %}

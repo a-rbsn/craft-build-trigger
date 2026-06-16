@@ -2,13 +2,32 @@
 {% import '_includes/forms.twig' as forms %}
 {% set title = "Build Trigger"|t('build-trigger') %}
 
+{% set settings = craft.app.plugins.getPlugin('build-trigger').getSettings() %}
+
 {% block content %}
-    <form method="POST">
-        {{ csrfInput() }}
-        {{ actionInput('build-trigger/default/trigger-build') }}
-        {{ redirectInput('build-trigger') }}
-        <button type="submit" class="btn submit" data-loading-text="{{ 'Triggering build...'|t('build-trigger') }}">
-            {{ 'Trigger Build'|t('build-trigger') }}
-        </button>
-    </form>
+    {% set sitesWithHook = craft.app.sites.allSites|filter(site => settings.getHookUrl(site) is not empty) %}
+
+    {% if sitesWithHook is empty %}
+        <p>
+            {{ "No build hooks are configured yet."|t('build-trigger') }}
+            <a href="{{ url('settings/plugins/build-trigger') }}">{{ "Configure build hooks"|t('build-trigger') }}</a>
+        </p>
+    {% else %}
+        <form method="POST">
+            {{ csrfInput() }}
+            {{ actionInput('build-trigger/default/trigger-build') }}
+            {{ redirectInput('build-trigger') }}
+
+            {{ forms.selectField({
+                label: "Site"|t('build-trigger'),
+                instructions: "Choose which site to rebuild."|t('build-trigger'),
+                name: 'siteId',
+                options: sitesWithHook|map(site => { label: site.name, value: site.id }),
+            }) }}
+
+            <button type="submit" class="btn submit" data-loading-text="{{ 'Triggering build…'|t('build-trigger') }}">
+                {{ 'Trigger build'|t('build-trigger') }}
+            </button>
+        </form>
+    {% endif %}
 {% endblock %}
