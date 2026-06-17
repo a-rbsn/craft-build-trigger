@@ -2,20 +2,25 @@
 
 namespace arbsn\craftbuildtrigger\models;
 
-use Craft;
 use craft\base\Model;
+use craft\helpers\App;
+use craft\models\Site;
 
 /**
- * Build Trigger settings
+ * Build Trigger settings.
  */
 class Settings extends Model
 {
-    public string $buildHookUrl = '';
+    /** @var array<string, string> Build hook URLs, keyed by site UID. */
+    public array $buildHookUrls = [];
 
-    public function defineRules(): array
+    public function getHookUrl(Site $site): string
     {
-        return [
-            [['buildHookUrl'], 'required'],
-        ];
+        return $this->buildHookUrls[$site->uid] ?? '';
+    }
+
+    public function getParsedHookUrl(Site $site): string
+    {
+        return App::parseEnv($this->getHookUrl($site)) ?: '';
     }
 }
